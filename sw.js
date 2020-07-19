@@ -26,20 +26,23 @@ workbox.clientsClaim();
  */
 self.__precacheManifest = [
   {
-    "url": "webpack-runtime-7e7d538cd1d63307f54e.js"
+    "url": "webpack-runtime-1ad1d4f7a6a18ec8bab4.js"
   },
   {
     "url": "framework-376edee25eb5f5cd8260.js"
   },
   {
-    "url": "app-438748f87eb7f0904fdd.js"
+    "url": "app-cb2e27b229c4519ec06e.js"
   },
   {
     "url": "component---node-modules-gatsby-plugin-offline-app-shell-js-d731f33f2b184998b449.js"
   },
   {
     "url": "offline-plugin-app-shell-fallback/index.html",
-    "revision": "8db062a89fe62b770514334a94cce835"
+    "revision": "2011ca1308301e066159d893bced111c"
+  },
+  {
+    "url": "polyfill-118cb73b15f8ba765669.js"
   },
   {
     "url": "manifest.json",
@@ -66,12 +69,12 @@ const { NavigationRoute } = workbox.routing
 
 const navigationRoute = new NavigationRoute(async ({ event }) => {
   let { pathname } = new URL(event.request.url)
-  pathname = pathname.replace(new RegExp(`^https://cdn.jsdelivr.net/gh/byteyang/blog@gh-pages`), ``)
+  pathname = pathname.replace(new RegExp(`^`), ``)
 
   // Check for resources + the app bundle
   // The latter may not exist if the SW is updating to a new version
   const resources = await idbKeyval.get(`resources:${pathname}`)
-  if (!resources || !(await caches.match(`https://cdn.jsdelivr.net/gh/byteyang/blog@gh-pages/app-438748f87eb7f0904fdd.js`))) {
+  if (!resources || !(await caches.match(`/app-cb2e27b229c4519ec06e.js`))) {
     return await fetch(event.request)
   }
 
@@ -84,7 +87,7 @@ const navigationRoute = new NavigationRoute(async ({ event }) => {
     }
   }
 
-  const offlineShell = `https://cdn.jsdelivr.net/gh/byteyang/blog@gh-pages/offline-plugin-app-shell-fallback/index.html`
+  const offlineShell = `/offline-plugin-app-shell-fallback/index.html`
   return await caches.match(offlineShell)
 })
 
