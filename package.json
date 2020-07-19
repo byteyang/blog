@@ -4,14 +4,15 @@
   "description": "Byteyang's Tech Blog",
   "author": "Byteyang <bytyeang@gmail.com>",
   "scripts": {
-    "build": "gatsby build",
     "start": "gatsby develop",
+    "build": "gatsby build",
     "serve": "gatsby serve",
     "clean": "gatsby clean",
     "deploy": "gatsby build --prefix-paths && gh-pages -d public"
   },
   "devDependencies": {
     "@lekoarts/gatsby-theme-minimal-blog": "^2.4.0",
+    "dotenv": "^8.2.0",
     "gatsby": "^2.20.36",
     "gatsby-plugin-cname": "^1.0.0",
     "gatsby-plugin-google-analytics": "^2.1.4",
