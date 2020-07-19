@@ -6,7 +6,22 @@ const shouldAnalyseBundle = process.env.ANALYSE_BUNDLE
 
 module.exports = {
   siteMetadata: {
+    // Used for the title template on pages other than the index site
+    siteTitle: `Byteyang`,
+    // Default title of the page
     siteTitleAlt: `Byteyang's Tech Blog`,
+    // Can be used for e.g. JSONLD
+    siteHeadline: `Byteyang's Tech Blog`,
+    // Will be used to generate absolute URLs for og:image etc.
+    siteUrl: `https://byteyang.dev`,
+    // Used for SEO
+    siteDescription: `Web 全栈开发, GraphQL, React`,
+    // Will be set on the <html /> tag
+    siteLanguage: `zh-CN`,
+    // Used for og:image and must be placed inside the `static` folder
+    siteImage: `/banner.jpg`,
+    // Twitter Handle
+    author: `@byteyang`,
   },
   plugins: [
     {
