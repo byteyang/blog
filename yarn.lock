@@ -6451,6 +6451,11 @@ gatsby-plugin-catch-links@^2.3.11:
     "@babel/runtime" "^7.10.3"
     escape-string-regexp "^1.0.5"
 
+gatsby-plugin-cname@1.0.0:
+  version "1.0.0"
+  resolved "https://registry.npm.taobao.org/gatsby-plugin-cname/download/gatsby-plugin-cname-1.0.0.tgz#5752d006c476a3c7897fca5c307901df5501747a"
+  integrity sha1-V1LQBsR2o8eJf8pcMHkB31UBdHo=
+
 gatsby-plugin-feed@^2.5.11:
   version "2.5.11"
   resolved "https://registry.npm.taobao.org/gatsby-plugin-feed/download/gatsby-plugin-feed-2.5.11.tgz#64b6ec5a291df23bece4471a82186437b5a20fc6"

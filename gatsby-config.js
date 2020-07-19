@@ -13,7 +13,7 @@ module.exports = {
     // Can be used for e.g. JSONLD
     siteHeadline: `Byteyang's Tech Blog`,
     // Will be used to generate absolute URLs for og:image etc.
-    siteUrl: `https://byteyang.dev`,
+    siteUrl: `https://www.byteyang.dev`,
     // Used for SEO
     siteDescription: `Web 全栈开发, GraphQL, React`,
     // Will be set on the <html /> tag
@@ -53,6 +53,7 @@ module.exports = {
       },
     },
     `gatsby-plugin-sitemap`,
+    `gatsby-plugin-cname`,
     {
       resolve: `gatsby-plugin-manifest`,
       options: {
