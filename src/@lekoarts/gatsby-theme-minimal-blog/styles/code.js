@@ -1,6 +1,9 @@
 const { tint } = require('@theme-ui/color')
 
 const code = {
+  img: {
+    maxWidth: `100%`,
+  },
   "[data-name='live-editor']": {
     fontSize: 1,
     'textarea, pre': {
@@ -68,13 +71,13 @@ const code = {
     },
     'pre[class~="language-javascript"]:before, pre[class~="language-js"]:before': {
       content: `"js"`,
-      background: `#006F01`,
-      color: `white`,
+      background: `#FCD018`,
+      color: `black`,
     },
     'pre[class~="language-jsx"]:before': {
       content: `"jsx"`,
-      background: `#006F01`,
-      color: `white`,
+      background: `#FCD018`,
+      color: `black`,
     },
     'pre[class~="language-ts"]:before': {
       content: `"ts"`,

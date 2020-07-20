@@ -18,7 +18,7 @@ module.exports = {
     // Used for SEO
     siteDescription: `Web 全栈开发, GraphQL, React`,
     // Will be set on the <html /> tag
-    siteLanguage: `zh-CN`,
+    siteLanguage: `en`,
     // Used for og:image and must be placed inside the `static` folder
     siteImage: `/banner.jpg`,
     // Twitter Handle

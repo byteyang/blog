@@ -1,0 +1,249 @@
+---
+title: GraphQL 基础
+date: 2019-03-20
+tags:
+  - GraphQL
+---
+
+GraphQL 是 Facebook 开源的一套 API 查询语言。非常年轻，从开源到现在只有 2-3 年的时间，国内外的应用也不算很多。但由于其基于类型的定义和灵活的查询形式，非常适合快速迭代的 Web 应用。正好公司的项目也在使用 GraphQL 作为 API 的定义和实现工具，为了加深对 GraphQL 的理解，决定写一系列文章实践 GraphQL 的各种特性。
+
+![graphql.png](https://i.loli.net/2019/01/21/5c44e5d847a84.png)
+
+这篇文章中，首先会简单介绍 GraphQL 的基础概念；在这之后，我们会以代码示例比较 GraphQL 和 Restful API 的实现差异，重点介绍其中的 N+1 问题和缓存部分；最后，我留下了一些思考问题，供大家参考和发散。
+
+### 概念
+
+> GraphQL 是一个用于 API 的查询语言，是一个使用基于类型系统来执行查询的服务端运行时（类型系统由你的数据定义）。GraphQL 并没有和任何特定数据库或者存储引擎绑定，而是依靠你现有的代码和数据支撑。
+
+#### 查询、变更和订阅 - Client
+
+在 GraphQL 中可以进行 3 类操作：查询、变更和订阅，这 3 类操作的描述统称为查询语言(Query Language)，在客户端使用，囊括了数据的读、写和实时传输。查询语言由类型和字段组成，类型需要与 Server 端的定义完全一致，字段则可以由 Client 端自由控制。
+
+![](https://cdn-images-1.medium.com/max/1600/1*gLgBpni39kqad9C4QDOCVQ.png)
+
+#### Schema 和类型 - Server
+
+在服务器端，GraphQL 可以在 `schema` 中定义以下类型：
+
+- 标量 `Scalar`
+  - Int
+  - Float
+  - String
+  - Boolean
+  - ID
+  - 自定义
+- 对象 `Object`
+- 操作 `Operation`
+  - 查询 `query`
+  - 变更 `mutation`
+  - 订阅 `subscription`
+- 输入 `Input`
+- 枚举 `Enum`
+- 接口 `Interface`
+- 联合 `Union`
+
+#### 小结
+
+简单地说，我们一般使用对象类型定义资源，对象的属性可以是标量或其它对象；查询类型用于定义查询结构，可以传入参数；变更类型因为有输入值，使用输入对象定义。除标量以外的类型（包括自定义标量），都需要一个 `resolver`，直到解析为标量为止。
+
+更加详细的介绍和入门手册可参照[官方文档](https://graphql.org/learn/)。
+
+### GraphQL vs. Restful
+
+> 严格来说，GraphQL 与 Restful 并不是同级别的规范。GraphQL 定义了一种新的查询语言，并以此为基础实现 API，范围超过 Restful。
+
+在 GraphQL 推出之前，[Restful]() 是最流行的 API 设计规范。有一张图可以形象的表示出 GraphQL 和 Restful 结构上的区别。
+
+![](http://image.3001.net/images/20180910/1536549610_5b95e2ea4e7c9.png)
+
+#### GraphQL 优点
+
+- Schema 和 Type 系统
+- 没有 Overfetching / Underfetching
+- 自带数据结构与文档系统(GraphiQL)
+
+#### GraphQL 缺点
+
+- N+1 查询
+- 缓存
+- schema 设计
+
+### 代码示例
+
+> Talk is cheap, show me the code
+
+接下在我用一个简单 Web 应用，来演示 GraphQL 和 Restful 的区别。重点描述 N+1 查询和缓存。数据库结构如下图所示，是一个简单的一对多表关联。
+
+![](http://tuchuang.fate.ink/20190222093711_sbJHGh_Screenshot.png)
+
+#### N+1 查询
+
+N+1 查询是指如果主表与关联表是 1 对 N 的关系，查询主表数据时，会通过 N 次查询查询关联表数据的情况，而实际上关联表的最佳查询次数只需 1 次。因此 N+1 查询会加重数据库的负载，影响性能。
+
+![](http://tuchuang.fate.ink/20190222091953_4zO110_Screenshot.png)
+
+场景很简单：查询所有 `user`，包含 `user` 中的 `post`
+
+##### Restful 的处理方式
+
+Restful 下，因为是直接操作数据库，可以有 2 种方式：
+
+1. 1 次查询，在 SQL 中做关联
+
+   ```js
+   // 通过数据库关联查询
+   User.findAllByDB = async function () {
+     const users = await User.findAll({ include: ['posts'] })
+
+     return users
+   }
+   ```
+
+   这是最广泛的用法。在 ORM 的配合下，看起来既代码简洁，也只有 1 次查询。但是这样实际是把压力转移给了 SQL。若关联复杂，`join` 的操作增多，性能难以掌控。
+
+2. 多次查询，在代码中做关联
+
+   如果在程序中进行表关联，则避免了 `join` 复杂度的问题。但是，N+1 查询随之出现。
+
+   ```js
+   // N+1 复现
+   // 即使使用 Promise.all，依然进行了 N 次数据库查询
+   const posts = await Promise.all(
+     users.map((user) =>
+       Post.find({
+         where: {
+           user_id: user.id,
+         },
+       })
+     )
+   )
+   ```
+
+   可以看到，即使使用 Node.js 的神器 `Promise` 并发执行多条查询，返回结果的时间可能缩短，但对数据库而言，仍然是 N+1 次查询。正确的解决方式是使用 `in` 拼成一条查询，那么总的查询次数只有 2 次。
+
+   ```js
+   // N+1 解决方式: 使用 in 拼成一条查询
+   const posts = await Post.findAll({
+     where: {
+       user_id: {
+         [Sequelize.Op.in]: users.map((user) => user.id),
+       },
+     },
+   })
+   ```
+
+##### GraphQL 的处理方式
+
+在 GraphQL 中，每个 `resolver` 只能解析 1 种对象，因此在这个场景中，`post` 只能通过 `user_id` 逐个获取，100%出现 N+1 查询。更悲惨的是，和 Restful 相比，出现 N+1 查询时连使用 `Promise` 的机会都没有(捂脸)。。
+
+```js
+Post.findAllByUserId = function(user_id) {
+  // N+1 复现
+  // GraphQL 中的 N+1 连使用 Promise.all 的机会都没有
+  return await Post.find({ where: { user_id } });
+};
+```
+
+还好 Facebook 早已意识到这个问题，开发了 `DataLoader` 用于 GraphQL 下的关联查询处理。`DataLoader` 的原理是缓存每次查询的 `key`，在最后一并处理。
+
+```js
+// DataLoader
+async function batchGetPosts(user_ids) {
+  const posts = await Post.findAll({
+    where: {
+      user_id: {
+        [Sequelize.Op.in]: user_ids,
+      },
+    },
+  })
+
+  const results = []
+  user_ids.forEach((user_id) => {
+    results.push(posts.filter((post) => user_id === post.user_id))
+  })
+  return results
+}
+const postLoader = new DataLoader((keys) => batchGetPosts(keys))
+
+Post.findAllByUserId = function (user_id) {
+  // N+1 解决方式: DataLoader
+  return postLoader.load(user_id)
+}
+```
+
+#### 缓存
+
+Web 系统中的缓存应用广泛，有以下几类：
+
+- 服务端缓存，例如 `Memcache`, `Redis`
+- 网络缓存，例如 `DNS`, `CDN`
+- 客户端缓存，例如浏览器缓存
+
+本篇只讨论 GraphQL 和 Restful 在浏览器缓存的区别与应用。
+
+##### 浏览器(Http)缓存简介
+
+![](https://user-gold-cdn.xitu.io/2019/1/21/1686e2735297a596)
+
+浏览器缓存分 2 种：
+
+- 强缓存
+  - Expires
+  - Cache-Control
+- 协商缓存
+  - Last-Modify/If-Modify-Since
+  - ETag/If-None-Match
+
+##### Restful 缓存实现
+
+Restful 可以借助 HTTP 规范很简单地实现浏览器缓存。这里我使用了强缓存: `Cache-Control`，只需在服务端返回的 `Response` 上加入 `Header` 即可。
+
+```js
+router.get("/users", async ctx => {
+  // 告知浏览器使用缓存，时长20秒
+  ctx.set({
+    "Cache-Control": "max-age=20"
+  });
+
+  ......
+}
+```
+
+运行结果，取消 chrome 控制台中的 `Disable Cache` 选项。可以看到，第一次是从服务器拿回数据，有 Size 大小；接着几次请求的 Size 为 `from disk cache`，证明从缓存拿回数据；最后一个请求同样有 Size 大小，证明缓存失效。
+
+![](http://tuchuang.fate.ink/20190222103136_tP7IcH_Screenshot.png)
+
+##### GraphQL 缓存实现
+
+GraphQL 可否像 Restful 一样，在服务端添加个 `Header` 就解决问题？遗憾，并不能。Restful 的 URL 是唯一的，因此可以作为 Key 轻松实现缓存；但 GraphQL 只有一个 URL，该如何实现缓存？
+
+经过调研，`apollo-client` 下的一个包: `apollo-cache-inmemory` 可以实现 GraphQL 在浏览器端的缓存。使用的方式也很简单：
+
+```js
+import ApolloClient from 'apollo-boost'
+const cache = new InMemoryCache()
+const client = new ApolloClient({
+  uri: 'http://localhost:4000/graphql',
+  cache,
+})
+```
+
+这样由这个 `client` 发出的每个请求都会被浏览器缓存。但是有个问题，过期时间在哪里设置？目前这个问题我还没有找到答案，有一个尚未关闭的 [Issue](https://github.com/apollographql/apollo-feature-requests/issues/4)，可能跟踪下会有帮助。
+
+### 思考
+
+- GraphQL Schema 设计的最佳实践？
+- 浏览器端缓存的使用场景？如何设计？
+- 加强 `apollo-client` 的应用
+- 学习 Github
+
+### 参考
+
+- [GraphQL | A query language for your API](https://graphql.org/)
+- [Apollo Server](https://www.apollographql.com/docs/apollo-server/)
+- [How To GraphQL](https://www.howtographql.com/)
+- [The Anatomy of a GraphQL Query](https://blog.apollographql.com/the-anatomy-of-a-graphql-query-6dffa9e9e747)
+- [GraphQL best practices for GraphQL schema design](https://graphqlmastery.com/blog/graphql-best-practices-for-graphql-schema-design)
+- [GraphQL 在微服务架构中的实践](https://draveness.me/graphql-microservice)
+- [实践这一次,彻底搞懂浏览器缓存机制](https://juejin.im/post/5c4528a6f265da611a4822cc)
+- [前端如何更好的实现接口的缓存和更新](https://www.zhihu.com/question/40035517)
