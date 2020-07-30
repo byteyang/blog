@@ -9,7 +9,7 @@ tags:
 
 前一阵在写 GraphQL 接口集成测试 时，发现仅仅是传参格式校验，就需要编写许多 Case 。例如，更新机器人回复设置接口：
 
-![](http://tuchuang.fate.ink/20200709222301_m24aOf_Screenshot.jpeg)
+![](https://p.pstatp.com/origin/ff65000285263bb0fa34)
 
 每个 `Int` 字段都需要校验「是否为非负整数」。但其实 Case 并不止这些，因为每个 `Int` 字段的合法条件除了「非负」以外，各不相同：
 
@@ -28,7 +28,7 @@ tags:
 
 > 难道要在每个接口的开头，手动添加传参校验代码？
 
-![](http://tuchuang.fate.ink/20200709234145_yic16r_1594309297295.jpeg)
+![](https://p.pstatp.com/origin/ff130002a79abb9e09dc)
 
 ### 踩坑: GraphQL Custom Scalars
 
@@ -68,7 +68,7 @@ const myCustomScalarType = new GraphQLScalarType({
 - Int_Zero_One_Two_Three
 - ……
 
-![](http://tuchuang.fate.ink/20200709234145_yic16r_1594309297295.jpeg)
+![](https://p.pstatp.com/origin/ff130002a79abb9e09dc)
 
 ### 解决: GraphQL Directives
 
@@ -183,7 +183,7 @@ const server = new ApolloServer({
 
 是不是灵活了很多？
 
-![](http://tuchuang.fate.ink/20200709232327_CPZJwA_Screenshot.jpeg)
+![](https://p.pstatp.com/origin/ff710002079a67d8d310)
 
 #### 参考
 

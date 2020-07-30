@@ -7,7 +7,7 @@ tags:
 
 GraphQL 是 Facebook 开源的一套 API 查询语言。非常年轻，从开源到现在只有 2-3 年的时间，国内外的应用也不算很多。但由于其基于类型的定义和灵活的查询形式，非常适合快速迭代的 Web 应用。正好公司的项目也在使用 GraphQL 作为 API 的定义和实现工具，为了加深对 GraphQL 的理解，决定写一系列文章实践 GraphQL 的各种特性。
 
-![graphql.png](https://i.loli.net/2019/01/21/5c44e5d847a84.png)
+![graphql.png](https://p.pstatp.com/origin/13728000231ddd9dd088a)
 
 这篇文章中，首先会简单介绍 GraphQL 的基础概念；在这之后，我们会以代码示例比较 GraphQL 和 Restful API 的实现差异，重点介绍其中的 N+1 问题和缓存部分；最后，我留下了一些思考问题，供大家参考和发散。
 
@@ -19,7 +19,7 @@ GraphQL 是 Facebook 开源的一套 API 查询语言。非常年轻，从开源
 
 在 GraphQL 中可以进行 3 类操作：查询、变更和订阅，这 3 类操作的描述统称为查询语言(Query Language)，在客户端使用，囊括了数据的读、写和实时传输。查询语言由类型和字段组成，类型需要与 Server 端的定义完全一致，字段则可以由 Client 端自由控制。
 
-![](https://cdn-images-1.medium.com/max/1600/1*gLgBpni39kqad9C4QDOCVQ.png)
+![](https://p.pstatp.com/origin/137bb00007b799718c70b)
 
 #### Schema 和类型 - Server
 
@@ -54,7 +54,7 @@ GraphQL 是 Facebook 开源的一套 API 查询语言。非常年轻，从开源
 
 在 GraphQL 推出之前，[Restful]() 是最流行的 API 设计规范。有一张图可以形象的表示出 GraphQL 和 Restful 结构上的区别。
 
-![](http://image.3001.net/images/20180910/1536549610_5b95e2ea4e7c9.png)
+![](https://p.pstatp.com/origin/137c500005b864febd880)
 
 #### GraphQL 优点
 
@@ -74,13 +74,13 @@ GraphQL 是 Facebook 开源的一套 API 查询语言。非常年轻，从开源
 
 接下在我用一个简单 Web 应用，来演示 GraphQL 和 Restful 的区别。重点描述 N+1 查询和缓存。数据库结构如下图所示，是一个简单的一对多表关联。
 
-![](http://tuchuang.fate.ink/20190222093711_sbJHGh_Screenshot.png)
+![](https://p.pstatp.com/origin/1381700001d198e2a5331)
 
 #### N+1 查询
 
 N+1 查询是指如果主表与关联表是 1 对 N 的关系，查询主表数据时，会通过 N 次查询查询关联表数据的情况，而实际上关联表的最佳查询次数只需 1 次。因此 N+1 查询会加重数据库的负载，影响性能。
 
-![](http://tuchuang.fate.ink/20190222091953_4zO110_Screenshot.png)
+![](https://p.pstatp.com/origin/fe5c0001f4af06741d07)
 
 场景很简单：查询所有 `user`，包含 `user` 中的 `post`
 
@@ -183,7 +183,7 @@ Web 系统中的缓存应用广泛，有以下几类：
 
 ##### 浏览器(Http)缓存简介
 
-![](https://user-gold-cdn.xitu.io/2019/1/21/1686e2735297a596)
+![](https://p.pstatp.com/origin/137aa0000e2874cd744db)
 
 浏览器缓存分 2 种：
 
@@ -211,7 +211,7 @@ router.get("/users", async ctx => {
 
 运行结果，取消 chrome 控制台中的 `Disable Cache` 选项。可以看到，第一次是从服务器拿回数据，有 Size 大小；接着几次请求的 Size 为 `from disk cache`，证明从缓存拿回数据；最后一个请求同样有 Size 大小，证明缓存失效。
 
-![](http://tuchuang.fate.ink/20190222103136_tP7IcH_Screenshot.png)
+![](https://p.pstatp.com/origin/feee000249780e640dc3)
 
 ##### GraphQL 缓存实现
 
