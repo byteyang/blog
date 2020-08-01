@@ -15,6 +15,7 @@ const code = {
     backgroundColor: tint(`primary`, 0.7),
   },
   '.prism-code': {
+    fontFamily: `Consolas, Monaco, 'Andale Mono', 'Ubuntu Mono', monospace`,
     fontSize: [1, 1, 2],
     padding: 3,
     webkitOverflowScrolling: `touch`,
@@ -43,7 +44,7 @@ const code = {
     fontSize: [1, 1, 2],
     position: `relative`,
     webkitOverflowScrolling: `touch`,
-    bg: `rgb(1, 22, 39)`,
+    bg: `rgb(40, 44, 52)`,
     overflow: `auto`,
     borderRadius: `2px`,
     mx: [0, 0, 0, -3],
@@ -184,12 +185,9 @@ const code = {
     pr: 3,
   },
   '.highlight-line': {
-    backgroundColor: `rgb(2, 55, 81)`,
-    borderLeft: `4px solid rgb(2, 155, 206)`,
+    backgroundColor: `rgb(64, 64, 64)`,
     '.line-number-style': {
-      width: `calc(3em - 4px)`,
       opacity: 0.5,
-      left: `-2px`,
     },
   },
 }
